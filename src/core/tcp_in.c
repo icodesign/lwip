@@ -44,7 +44,7 @@
 #include "lwip/opt.h"
 
 #if LWIP_TCP /* don't build if not configured for use in lwipopts.h */
-
+#include <string.h>
 #include "lwip/priv/tcp_priv.h"
 #include "lwip/def.h"
 #include "lwip/ip_addr.h"
@@ -304,15 +304,16 @@ tcp_input(struct pbuf *p, struct netif *inp)
     /* Finally, if we still did not get a match, we check all PCBs that
        are LISTENing for incoming connections. */
     prev = NULL;
+    struct tcp_pcb_listen *netif_pcb = NULL;
+    struct tcp_pcb *netif_pcb_prev = NULL;
     for (lpcb = tcp_listen_pcbs.listen_pcbs; lpcb != NULL; lpcb = lpcb->next) {
-      /* check if PCB is bound to specific netif */
-      if ((lpcb->netif_idx != NETIF_NO_INDEX) &&
-          (lpcb->netif_idx != netif_get_index(ip_data.current_input_netif))) {
-        prev = (struct tcp_pcb *)lpcb;
-        continue;
-      }
-
-      if (lpcb->local_port == tcphdr->dest) {
+        if (lpcb->bind_to_netif) {
+            int version_match = (ip_current_is_v6()? IP_HDR_GET_VERSION(lpcb) == IPADDR_TYPE_V6 : IP_HDR_GET_VERSION(lpcb) != IPADDR_TYPE_V6);
+            if (version_match && netif_is_named(inp, lpcb->local_netif)) {
+                netif_pcb = lpcb;
+                netif_pcb_prev = prev;
+            }
+        } else if (lpcb->local_port == tcphdr->dest) {
         if (IP_IS_ANY_TYPE_VAL(lpcb->local_ip)) {
           /* found an ANY TYPE (IPv4/IPv6) match */
 #if SO_REUSE
@@ -346,6 +347,10 @@ tcp_input(struct pbuf *p, struct netif *inp)
       prev = lpcb_prev;
     }
 #endif /* SO_REUSE */
+    if (lpcb == NULL && netif_pcb) {
+        lpcb = netif_pcb;
+        prev = netif_pcb_prev;
+    }
     if (lpcb != NULL) {
       /* Move this PCB to the front of the list so that subsequent
          lookups will be faster (we exploit locality in TCP segment
@@ -647,7 +652,9 @@ tcp_listen_input(struct tcp_pcb_listen *pcb)
     /* Set up the new PCB. */
     ip_addr_copy(npcb->local_ip, *ip_current_dest_addr());
     ip_addr_copy(npcb->remote_ip, *ip_current_src_addr());
-    npcb->local_port = pcb->local_port;
+    npcb->bind_to_netif = pcb->bind_to_netif;
+    memcpy(npcb->local_netif, pcb->local_netif, sizeof(pcb->local_netif));
+    npcb->local_port = tcphdr->dest;
     npcb->remote_port = tcphdr->src;
     npcb->state = SYN_RCVD;
     npcb->rcv_nxt = seqno + 1;

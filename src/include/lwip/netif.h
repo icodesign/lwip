@@ -105,7 +105,7 @@ extern "C" {
 /** If set, the netif has MLD6 capability.
  * Set by the netif driver in its init function. */
 #define NETIF_FLAG_MLD6         0x40U
-
+#define NETIF_FLAG_PRETEND_TCP  0x80U
 /**
  * @}
  */
@@ -407,6 +407,10 @@ struct netif *netif_find(const char *name);
 
 void netif_set_default(struct netif *netif);
 
+int netif_is_named (struct netif *netif, const char name[3]);
+
+void netif_set_pretend_tcp (struct netif *netif, u8_t pretend);
+
 #if LWIP_IPV4
 void netif_set_ipaddr(struct netif *netif, const ip4_addr_t *ipaddr);
 void netif_set_netmask(struct netif *netif, const ip4_addr_t *netmask);
@@ -447,6 +451,8 @@ void netif_set_link_up(struct netif *netif);
 void netif_set_link_down(struct netif *netif);
 /** Ask if a link is up */
 #define netif_is_link_up(netif) (((netif)->flags & NETIF_FLAG_LINK_UP) ? (u8_t)1 : (u8_t)0)
+
+#define netif_is_pretend_tcp(netif) (((netif)->flags & NETIF_FLAG_PRETEND_TCP) ? (u8_t)1 : (u8_t)0)
 
 #if LWIP_NETIF_LINK_CALLBACK
 void netif_set_link_callback(struct netif *netif, netif_status_callback_fn link_callback);
