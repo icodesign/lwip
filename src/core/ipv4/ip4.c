@@ -213,6 +213,9 @@ ip4_route(const ip4_addr_t *dest)
 #endif
 #endif /* !LWIP_SINGLE_NETIF */
 
+  if (netif_default != NULL && netif_is_pretend_tcp(netif_default)) {
+    return netif_default;
+  }
   if ((netif_default == NULL) || !netif_is_up(netif_default) || !netif_is_link_up(netif_default) ||
       ip4_addr_isany_val(*netif_ip4_addr(netif_default)) || ip4_addr_isloopback(dest)) {
     /* No matching netif found and default netif is not usable.
@@ -613,7 +616,11 @@ ip4_input(struct pbuf *p, struct netif *inp)
       return ERR_OK;
     }
   }
-
+  /* if we're pretending we are everyone for TCP, assume the packet is for source interface if it
+   isn't for a local address */
+  if (netif == NULL && (inp->flags & NETIF_FLAG_PRETEND_TCP) && IPH_PROTO(iphdr) == IP_PROTO_TCP) {
+    netif = inp;
+  }
   /* packet not for us? */
   if (netif == NULL) {
     /* packet not for us, route or discard */

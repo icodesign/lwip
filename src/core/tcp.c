@@ -736,6 +736,7 @@ tcp_bind(struct tcp_pcb *pcb, const ip_addr_t *ipaddr, u16_t port)
     }
   }
 
+  pcb->bind_to_netif = 0;
   if (!ip_addr_isany(ipaddr)
 #if LWIP_IPV4 && LWIP_IPV6
       || (IP_GET_TYPE(ipaddr) != IP_GET_TYPE(&pcb->local_ip))
@@ -768,6 +769,32 @@ tcp_bind_netif(struct tcp_pcb *pcb, const struct netif *netif)
   } else {
     pcb->netif_idx = NETIF_NO_INDEX;
   }
+}
+
+err_t
+tcp_bind_to_netif(struct tcp_pcb *pcb, const char ifname[3])
+{
+    LWIP_ERROR("tcp_bind_if: can only bind in state CLOSED", pcb->state == CLOSED, return ERR_ISCONN);
+
+    /* Check if the interface is already in use */
+    for (int i = 0; i < NUM_TCP_PCB_LISTS; i++) {
+        for(struct tcp_pcb *cpcb = *tcp_pcb_lists[i]; cpcb != NULL; cpcb = cpcb->next) {
+            if (IP_HDR_GET_VERSION(cpcb) == IP_HDR_GET_VERSION(pcb) &&
+                cpcb->bind_to_netif &&
+                !memcmp(cpcb->local_netif, ifname, sizeof(cpcb->local_netif))) {
+                return ERR_USE;
+            }
+        }
+    }
+
+    pcb->bind_to_netif = 1;
+    int is_ipv6 = IP_HDR_GET_VERSION(pcb) == IPADDR_TYPE_V6;
+    ip_addr_set_any(is_ipv6, &pcb->local_ip);
+    pcb->local_port = 0;
+    memcpy(pcb->local_netif, ifname, sizeof(pcb->local_netif));
+    TCP_REG(&tcp_bound_pcbs, pcb);
+    LWIP_DEBUGF(TCP_DEBUG, ("tcp_bind_to_netif: bind to interface %c%c%c\n", ifname[0], ifname[1], ifname[2]));
+    return ERR_OK;
 }
 
 #if LWIP_CALLBACK_API
@@ -885,6 +912,8 @@ tcp_listen_with_backlog_and_err(struct tcp_pcb *pcb, u8_t backlog, err_t *err)
     goto done;
   }
   lpcb->callback_arg = pcb->callback_arg;
+  lpcb->bind_to_netif = pcb->bind_to_netif;
+  memcpy(lpcb->local_netif, pcb->local_netif, sizeof(pcb->local_netif));
   lpcb->local_port = pcb->local_port;
   lpcb->state = LISTEN;
   lpcb->prio = pcb->prio;
@@ -896,7 +925,7 @@ tcp_listen_with_backlog_and_err(struct tcp_pcb *pcb, u8_t backlog, err_t *err)
   IP_SET_TYPE_VAL(lpcb->remote_ip, pcb->local_ip.type);
 #endif /* LWIP_IPV4 && LWIP_IPV6 */
   ip_addr_copy(lpcb->local_ip, pcb->local_ip);
-  if (pcb->local_port != 0) {
+  if (pcb->local_port != 0 || pcb->bind_to_netif) {
     TCP_RMV(&tcp_bound_pcbs, pcb);
   }
 #if LWIP_TCP_PCB_NUM_EXT_ARGS
@@ -1078,6 +1107,7 @@ tcp_connect(struct tcp_pcb *pcb, const ip_addr_t *ipaddr, u16_t port,
   LWIP_ERROR("tcp_connect: invalid ipaddr", ipaddr != NULL, return ERR_ARG);
 
   LWIP_ERROR("tcp_connect: can only connect from state CLOSED", pcb->state == CLOSED, return ERR_ISCONN);
+  LWIP_ERROR("tcp_connect: cannot connect pcb bound to netif", !pcb->bind_to_netif, return ERR_VAL);
 
   LWIP_DEBUGF(TCP_DEBUG, ("tcp_connect to port %"U16_F"\n", port));
   ip_addr_set(&pcb->remote_ip, ipaddr);

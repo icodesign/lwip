@@ -835,6 +835,28 @@ netif_set_default(struct netif *netif)
                             netif ? netif->name[0] : '\'', netif ? netif->name[1] : '\''));
 }
 
+int netif_is_named (struct netif *netif, const char name[3])
+{
+    u8_t num = name[2] - '0';
+
+    if (num == netif->num &&
+        name[0] == netif->name[0] &&
+        name[1] == netif->name[1]) {
+        return 1;
+    }
+    return 0;
+}
+
+void
+netif_set_pretend_tcp (struct netif *netif, u8_t pretend)
+{
+    if (pretend) {
+        netif->flags |= NETIF_FLAG_PRETEND_TCP;
+    } else {
+        netif->flags &= ~NETIF_FLAG_PRETEND_TCP;
+    }
+}
+
 /**
  * @ingroup netif
  * Bring an interface up, available for processing
