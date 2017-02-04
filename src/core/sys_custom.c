@@ -10,6 +10,7 @@
 #ifdef __MACH__
 #include <mach/clock.h>
 #include <mach/mach.h>
+#include <sys/_types/_timespec.h>
 #endif
 
 u32_t sys_now(void) {
