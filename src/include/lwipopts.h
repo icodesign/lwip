@@ -62,6 +62,9 @@
 
 #define SYS_LIGHTWEIGHT_PROT 0
 
+// Define if there're already htons ntohs htonl ntohl
+#define LWIP_DONT_PROVIDE_BYTEORDER_FUNCTIONS
+
 // MEM
 #define MEM_SIZE (1024 * 1024 * 1024) /* 512K */
 #define MEMP_NUM_PBUF 256

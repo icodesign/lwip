@@ -679,6 +679,11 @@ netif_found:
     goto ip6_input_cleanup;
   }
 
+  /* HACK */
+  if (netif == NULL) {
+    netif = inp;
+  }
+
   /* packet not for us? */
   if (netif == NULL) {
     /* packet not for us, route or discard */

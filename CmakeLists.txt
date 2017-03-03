@@ -17,6 +17,7 @@ message(STATUS "CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX}")
 SET(LWIP_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 SET(LWIP_SRC_CORE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/core)
 SET(LWIP_SRC_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/include)
+SET(LWIP_INCLUDE_DIR ${LWIP_SRC_INCLUDE_DIR} PARENT_SCOPE)
 
 set(LWIP_SRC
     ${LWIP_SRC_CORE_DIR}/def.c
@@ -53,7 +54,8 @@ set(LWIP_SRC
     ${LWIP_SRC_CORE_DIR}/ipv6/ip6_frag.c
     # ${LWIP_SRC_CORE_DIR}/ipv6/mld6.c
     ${LWIP_SRC_CORE_DIR}/ipv6/nd6.c
-    ${LWIP_SRC_CORE_DIR}/sys_custom.c)
+    ${LWIP_SRC_CORE_DIR}/sys_custom.c
+    )
 
 set(LWIP_HDR
     ${LWIP_SRC_INCLUDE_DIR}/lwip/priv/tcp_priv.h
@@ -73,16 +75,22 @@ set(LWIP_HDR
     ${LWIP_SRC_INCLUDE_DIR}/lwip/netif.h
     ${LWIP_SRC_INCLUDE_DIR}/lwip/tcp.h
     ${LWIP_SRC_INCLUDE_DIR}/lwip/udp.h
-    ${LWIP_SRC_INCLUDE_DIR}/lwip/timeouts.h)
+    ${LWIP_SRC_INCLUDE_DIR}/lwip/timeouts.h
+    ${LWIP_SRC_INCLUDE_DIR}/lwipopts.h
+    ${LWIP_SRC_INCLUDE_DIR}/arch/byteorder.h
+    ${LWIP_SRC_INCLUDE_DIR}/arch/cc.h
+    ${LWIP_SRC_INCLUDE_DIR}/arch/perf.h
+    ${LWIP_SRC_INCLUDE_DIR}/arch/print_macros.h
+    )
 
-SET(LWIP_INCLUDE_DIR 
-    ${CMAKE_CURRENT_BINARY_DIR}/include)
+# SET(LWIP_INCLUDE_DIR 
+#     ${CMAKE_CURRENT_BINARY_DIR}/include)
 
-file(COPY ${LWIP_SRC_INCLUDE_DIR} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+# file(COPY ${LWIP_SRC_INCLUDE_DIR} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
-include_directories(BEFORE ${CMAKE_CURRENT_BINARY_DIR}/include)
+include_directories(BEFORE ${LWIP_SRC_INCLUDE_DIR})
 
-add_library(${LIB_NAME} STATIC ${LWIP_HDR} ${LWIP_SRC})
+add_library(${LIB_NAME} STATIC ${LWIP_SRC} ${LWIP_HDR})
 
 install(TARGETS ${LIB_NAME}
         LIBRARY DESTINATION lib
