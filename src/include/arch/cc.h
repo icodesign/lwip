@@ -58,10 +58,10 @@
 #define X32_F PRIx32
 #define SZT_F "zu"
 
-extern int custom_lwip_printf(const char *fmt, ...);
+//extern int custom_lwip_printf(const char *fmt, ...);
 
-#define LWIP_PLATFORM_DIAG(x)  do { custom_lwip_printf x; } while(0);
-#define LWIP_PLATFORM_ASSERT(x) { fprintf(stderr, "%s: lwip assertion failure: %s\n", __FUNCTION__, (x)); abort(); }
+//#define LWIP_PLATFORM_DIAG(x)  do { custom_lwip_printf x; } while(0);
+//#define LWIP_PLATFORM_ASSERT(x) { fprintf(stderr, "%s: lwip assertion failure: %s\n", __FUNCTION__, (x)); abort(); }
 
 #define LWIP_RAND() ( \
     (((uint32_t)(rand() & 0xFF)) << 24) | \

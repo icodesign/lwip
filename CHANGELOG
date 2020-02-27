@@ -735,7 +735,7 @@ HISTORY
 
   2011-05-25: Simon Goldschmidt
   * again nearly the whole stack, renamed ip.c to ip4.c, ip_addr.c to ip4_addr.c,
-    combined ipv4/ipv6 inet_chksum.c, added ip.h, ip_addr.h: Combined IPv4
+    combined Ipv4/ipv6 inet_chksum.c, added ip.h, ip_addr.h: Combined IPv4
     and IPv6 code where possible, added defines to access IPv4/IPv6 in non-IP
     code so that the code is more readable.
 
@@ -1953,7 +1953,7 @@ HISTORY
     and basing PBUF_LINK_HLEN on it.
 
   2010-03-08: Simon Goldschmidt
-  * netif.c, ipv4/ip.c: task #10241 (AutoIP: don't break existing connections
+  * netif.c, Ipv4/ip.c: task #10241 (AutoIP: don't break existing connections
     when assiging routable address): when checking incoming packets and
     aborting existing connection on address change, filter out link-local
     addresses.
@@ -1962,7 +1962,7 @@ HISTORY
   * sockets.c: Fixed LWIP_NETIF_TX_SINGLE_PBUF for LWIP_TCPIP_CORE_LOCKING
 
   2010-03-06: Simon Goldschmidt
-  * ipv4/ip.c: Don't try to forward link-local addresses
+  * Ipv4/ip.c: Don't try to forward link-local addresses
 
   2010-03-06: Simon Goldschmidt
   * etharp.c: Fixed bug #29087: etharp: don't send packets for LinkLocal-
@@ -2065,7 +2065,7 @@ HISTORY
   2010-01-29: Simon Goldschmidt
   * ip_addr.h, inet.h, def.h, inet.c, def.c, more: Cleanly separate the
     portability file inet.h and its contents from the stack: moved htonX-
-    functions to def.h (and the new def.c - they are not ipv4 dependent),
+    functions to def.h (and the new def.c - they are not Ipv4 dependent),
     let inet.h depend on ip_addr.h and not the other way round.
     This fixes bug #28732.
 
@@ -2376,7 +2376,7 @@ HISTORY
     is otherwise used)
 
   2009-01-28 Jonathan Larmour (suggested by Bill Bauerbach)
-  * ipv4/inet_chksum.c, ipv4/lwip/inet_chksum.h: inet_chksum_pseudo_partial()
+  * Ipv4/inet_chksum.c, Ipv4/lwip/inet_chksum.h: inet_chksum_pseudo_partial()
   is only used by UDPLITE at present, so conditionalise it.
 
   2008-12-03 Simon Goldschmidt (base on patch from Luca Ceresoli)
@@ -2815,9 +2815,9 @@ HISTORY
     for a new query, and fix some minor problems.
 
   2007-11-16 Simon Goldschmidt
-  * new files: ipv4/inet.c, ipv4/inet_chksum.c, ipv6/inet6.c
+  * new files: Ipv4/inet.c, Ipv4/inet_chksum.c, ipv6/inet6.c
     removed files: core/inet.c, core/inet6.c
-    Moved inet files into ipv4/ipv6 directory; splitted inet.c/inet.h into
+    Moved inet files into Ipv4/ipv6 directory; splitted inet.c/inet.h into
     inet and chksum part; changed includes in all lwIP files as appropriate
 
   2007-11-16 Simon Goldschmidt
@@ -2922,7 +2922,7 @@ HISTORY
     Enable to access to these fields with LWIP_TCP=0.
 
   2007-09-05 Frédéric Bernon
-  * udp.c, ipv4/icmp.c, ipv4/ip.c, ipv6/icmp.c, ipv6/ip6.c, ipv4/icmp.h,
+  * udp.c, Ipv4/icmp.c, Ipv4/ip.c, ipv6/icmp.c, ipv6/ip6.c, Ipv4/icmp.h,
     ipv6/icmp.h, opt.h: Integrate "task #7272 : LWIP_ICMP option". The new option
     LWIP_ICMP enable/disable ICMP module inside the IP stack (enable per default).
     Be careful, disabling ICMP make your product non-compliant to RFC1122, but
@@ -3514,7 +3514,7 @@ HISTORY
     connections.
 
   2007-07-02 Simon Goldschmidt
-  * ipv4/ip.h, ipv6/ip.h, opt.h, netif.h, etharp.h, ipv4/ip.c, netif.c, raw.c,
+  * Ipv4/ip.h, ipv6/ip.h, opt.h, netif.h, etharp.h, Ipv4/ip.c, netif.c, raw.c,
     tcp_out.c, udp.c, etharp.c: Added option LWIP_NETIF_HWADDRHINT (default=off)
     to cache ARP table indices with each pcb instead of single-entry cache for
     the complete stack.
@@ -3900,16 +3900,16 @@ HISTORY
     Note this is a workaround. Currently I have no other options left.
 
   2006-10-26 Christiaan Simons (accepted patch by Jonathan Larmour)
-  * ipv4/ip_frag.c: rename MAX_MTU to IP_FRAG_MAX_MTU and move define
+  * Ipv4/ip_frag.c: rename MAX_MTU to IP_FRAG_MAX_MTU and move define
     to include/lwip/opt.h.
-  * ipv4/lwip/ip_frag.h: Remove unused IP_REASS_INTERVAL.
+  * Ipv4/lwip/ip_frag.h: Remove unused IP_REASS_INTERVAL.
     Move IP_REASS_MAXAGE and IP_REASS_BUFSIZE to include/lwip/opt.h.
   * opt.h: Add above new options.
 
   2006-08-18 Christiaan Simons
   * tcp_{in,out}.c: added SNMP counters.
-  * ipv4/ip.c: added SNMP counters.
-  * ipv4/ip_frag.c: added SNMP counters.
+  * Ipv4/ip.c: added SNMP counters.
+  * Ipv4/ip_frag.c: added SNMP counters.
 
   2006-08-08 Christiaan Simons
   * etharp.{c,h}: added etharp_find_addr() to read
@@ -3944,7 +3944,7 @@ HISTORY
   2006-10-11 Christiaan Simons
   * api_lib.c etharp.c, ip.c, memp.c, stats.c, sys.{c,h} tcp.h:
     Partially accepted patch #5449 for ANSI C compatibility / build fixes.
-  * ipv4/lwip/ip.h ipv6/lwip/ip.h: Corrected UDP-Lite protocol
+  * Ipv4/lwip/ip.h ipv6/lwip/ip.h: Corrected UDP-Lite protocol
     identifier from 170 to 136 (bug #17574).
 
   2006-10-10 Christiaan Simons
@@ -3976,7 +3976,7 @@ HISTORY
 (STABLE-1_1_1)
 
   2006-03-03  Christiaan Simons
-  * ipv4/ip_frag.c: Added bound-checking assertions on ip_reassbitmap
+  * Ipv4/ip_frag.c: Added bound-checking assertions on ip_reassbitmap
     access and added pbuf_alloc() return value checks.
 
   2006-01-01  Leon Woestenberg <leon.woestenberg@gmx.net>
@@ -4044,10 +4044,10 @@ HISTORY
     etharp_query() now always DOES call ETHARP_TRY_HARD so that users
     querying an address will see it appear in the cache (DHCP could
     suffer from this when a server invalidly gave an in-use address.)
-  * ipv4/ip_addr.h: Renamed ip_addr_maskcmp() to _netcmp() as we are
+  * Ipv4/ip_addr.h: Renamed ip_addr_maskcmp() to _netcmp() as we are
     comparing network addresses (identifiers), not the network masks
     themselves.
-  * ipv4/ip_addr.c: ip_addr_isbroadcast() now checks that the given
+  * Ipv4/ip_addr.c: ip_addr_isbroadcast() now checks that the given
     IP address actually belongs to the network of the given interface.
 
   2004-11-24 Kieran Mansley <kjm25@cam.ac.uk>
